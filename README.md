@@ -22,7 +22,7 @@ This repository supports **COSC 650: Applied LLMs** at Maryville University, an 
 ```
 
 Each `week-XX/` directory contains that week's exercises and code.
-The `notes.` directory contains text files with notes for each week containing important information and findings from our results during the code execution
+The `notes/` directory contains text files with notes for each week containing important information and findings from our results during the code execution
 
 ## Technologies
 
