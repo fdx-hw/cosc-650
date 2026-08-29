@@ -1,19 +1,33 @@
-# COSC-650 Coursework & Projects
+# COSC 650: Applied LLMs
 
-## Overview
-This repository contains my assignments, Jupyter Notebooks, and project implementations for **COSC-650**. The primary focus of this repository is to track my progress and showcase the practical impact of the models and data pipelines developed throughout the course.
+A hands-on, project-based repository for building and reasoning about LLM systems, from tokenization through prompt engineering, tool use, retrieval, and fine-tuning.
 
-## Organization
-This repository is organized into weekly assignments:
+## Course Context
 
-* **/notebooks**: Weekly Jupyter Notebooks containing exploratory data analysis, algorithm implementations, and regular coursework. 
-  * **Week 1 - Tokenization:** Tokenization is the first layer of the stack, the seam where your text becomes something a model can process. The choices made there set the cost of every prompt and the fairness of a system across languages. This week's notebook measures that directly, serving as the foundation that carries the work for the next eight weeks. It includes a short analysis that proves a real claim with real numbers.
+This repository supports **COSC 650: Applied LLMs** at Maryville University, an 8-week course that moves from the input layer (how text becomes tokens) through the processing layer (how transformers turn tokens into predictions) to the practitioner's interface (prompt engineering as code), and then into giving models the ability to act, function calling, retrieval-augmented generation, fine-tuning, and the production-readiness questions that decide whether any of it survives contact with real users. Assignments emphasize treating prompts as versioned, testable artifacts and documenting experiments as GitHub Issues, so the repo builds toward a small applied-LLM portfolio rather than a folder of disconnected homework.
 
-## Tools & Technologies
-This repository utilizes the following stack to process text and evaluate models:
+## Repository Structure
 
-* **Languages:** Python 3
-* **Core Focus:** Tokenization analysis, evaluating prompt costs, and measuring cross-lingual fairness
-* **Development & Version Control:** Git, Jupyter, VS Code
----
-*Maintained by George Chandy*
+```
+.
+├── week-01/     # Tokenization Analysis
+├── week-02/     # Inference and Sampling
+├── week-03/     # Prompts as Engineering Artifacts
+├── week-04/     # Multi-Tool Assistant
+├── week-05/     # RAG Pipeline with Retrieval Evaluation
+├── week-06/     # Advanced Retrieval, Transform and Measure
+├── week-07/     # The Adaptation Decision and a Production Dataset
+├── week-08/     # Integrated LLM System
+└── notes/       # Reading notes, experiment logs, and reference material
+```
+
+Each `week-XX/` directory contains that week's exercises, code, and a short writeup.
+
+## Technologies
+
+- **Python** — primary language for all exercises and projects
+- **Jupyter** — notebooks for exploratory work and walkthroughs
+- **tiktoken** — tokenization
+- **Anthropic SDK** — model access, function calling, and API-based experimentation
+- Additional libraries introduced as needed (e.g., for retrieval, evaluation, and fine-tuning) in later weeks
+
