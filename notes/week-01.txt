@@ -1,0 +1,18 @@
+Passages & Multilingual Tax
+
+Wrote an original English passage (107 words) and a faithful French translation (120 words) to avoid reusing copyrighted text.
+Measured token counts: GPT-4 (133 EN / 237 FR), GPT-4o (130 EN / 200 FR).
+Calculated the "multilingual tax": 1.78x (GPT-4), 1.54x (GPT-4o) — French costs significantly more tokens for the same content.
+
+Bias Splits & Failure Case
+
+(a) Bias pairs: compared English/French equivalents with show_split:
+water→eau (1→2 tokens) ✅ clear bias
+friendship→amitié (2→3 tokens) ✅ clear bias
+dignity→dignité (3→3 tokens) — didn't show the bias, since "dignity" already fragments in English
+(b) Failure case: l'ordinateur → 4 tokens (['l', "'", 'ordinate', 'ur']) instead of an expected 1-2, because the tokenizer doesn't recognize French apostrophe elision as a normal word boundary.
+Wrote explanations for both, plus a mitigation strategy: budget tokens per-language rather than assuming a universal ratio, and consider normalizing text (expanding contractions) before tokenizing.
+
+Context Window Impact
+
+At a 128k-token window: ~962 copies of the passage fit in English vs. ~540 in French — translated this into a product-level takeaway about cost/capacity disadvantage for non-English users.
