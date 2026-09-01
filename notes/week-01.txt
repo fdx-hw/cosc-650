@@ -9,10 +9,12 @@ Bias Splits & Failure Case
 (a) Bias pairs: compared English/French equivalents with show_split:
 water→eau (1→2 tokens) ✅ clear bias
 friendship→amitié (2→3 tokens) ✅ clear bias
-dignity→dignité (3→3 tokens) — didn't show the bias, since "dignity" already fragments in English
+fishermen→pêcheurs (2→4 tokens) ✅ clear bias
 (b) Failure case: l'ordinateur → 4 tokens (['l', "'", 'ordinate', 'ur']) instead of an expected 1-2, because the tokenizer doesn't recognize French apostrophe elision as a normal word boundary.
 Wrote explanations for both, plus a mitigation strategy: budget tokens per-language rather than assuming a universal ratio, and consider normalizing text (expanding contractions) before tokenizing.
 
 Context Window Impact
 
 At a 128k-token window: ~962 copies of the passage fit in English vs. ~540 in French — translated this into a product-level takeaway about cost/capacity disadvantage for non-English users.
+- Headline tax: 1.78x (GPT-4), 1.54x (GPT-4o).
+- Per-word tax (length-controlled): 1.59x (GPT-4), 1.37x (GPT-4o).
