@@ -18,6 +18,9 @@ fine-tuning, and evaluation.
 - All code is Python 3.11+
 - tiktoken is used for tokenization experiments
 - Commits use descriptive messages, not "update" or "fix"
+- Analysis and explanations go in Markdown cells, never in `#` code comments
+- Commit incrementally as work progresses, not as one final "submission" commit
+- transformers and torch (CPU) are used for local model experiments (e.g. distilgpt2)
 
 ## Do Not
 - Delete files or directories without confirming first
