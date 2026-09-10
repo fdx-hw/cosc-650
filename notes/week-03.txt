@@ -1,0 +1,52 @@
+----------------------------------------------------------------------------------------------------------------------
+Week 3 - Discussion post(Prompt Failure & Structural Fix)
+----------------------------------------------------------------------------------------------------------------------
+Task
+
+Given a pile of copy-pasted "Wolverine reviews," produce a buy/wait/skip
+verdict for Marvel's Wolverine (Insomniac, PS5, releasing 9/15/2026). The
+test corpus is real preview coverage gathered from Eurogamer, GameSpot,
+GamesRadar+, IGN, Skill Up, and Tech4Gamers, mixed with two deliberate
+distractors that share the "Wolverine" keyword but are unrelated (the 2009
+X-Men Origins: Wolverine game, the 2024 Deadpool & Wolverine film) plus one
+forum speculation comment.
+
+What failed
+
+The baseline prompt (a flat instruction, no source labels, no schema) worked
+on a short, clean input but broke on the full mixed corpus: across 5 trials
+on Claude Sonnet 4.5, every run correctly noticed the two distractors were
+about a different game/film, then got stuck there — spending the whole
+response asking the user to clarify instead of just answering. Classified as
+context contamination driven by entity confusion, with the visible symptom
+being task derailment rather than silent blending of wrong data.
+
+Fix
+
+- Wrapped each source in metadata (`subject`, `year`, `medium`, `review_type`)
+  instead of a flat text blob
+- Pinned the exact target game in the system prompt with an explicit
+  exclude-if-it-doesn't-match rule
+- Added `excluded_sources` and `coverage_type` fields to a required JSON
+  output schema, making filtering auditable instead of narrated
+- Prefilled the assistant turn to force valid JSON
+
+Results
+
+Ran 5 trials at each of three temperatures (0, 0.7, 1.0) = 15 total. Every
+trial returned valid JSON, correctly excluded both distractors by name with
+accurate reasons, correctly demoted the forum guess to `community_sentiment`
+instead of citing it as a score, and gave an identical recommendation
+("wait," medium confidence) regardless of temperature.
+
+## Note on evaluation methodology
+
+An early automated check flagged 0/15 "correctly excluded both sources,"
+which looked like a partial failure. It was actually a bug in the check
+itself (matching against the wrong JSON field) — confirmed by reading the
+raw model output directly. Left in as part of the write-up: a sloppy
+validator can manufacture a failure that isn't there.
+
+----------------------------------------------------------------------------------------------------------------------
+Week 3 - Anatomy of a failing prompt Experiment Notes and Results
+----------------------------------------------------------------------------------------------------------------------
