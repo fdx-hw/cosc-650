@@ -21,8 +21,14 @@ fine-tuning, and evaluation.
 - Analysis and explanations go in Markdown cells, never in `#` code comments
 - Commit incrementally as work progresses, not as one final "submission" commit
 - transformers and torch (CPU) are used for local model experiments (e.g. distilgpt2)
+- Live calls use the Anthropic API (ANTHROPIC_API_KEY); cheapest model that fits the task
+- In Colab, read secrets via google.colab.userdata, not hardcoded
+- Notebooks needing extra packages (anthropic, sentence-transformers) install them in a %pip cell, not just a note
+- Semantic similarity: sentence-transformers (all-MiniLM-L6-v2), paired with exact-match, never alone
+- Prompt versions are separate files, not inline strings
 
 ## Do Not
 - Delete files or directories without confirming first
 - Push to main without checking what is staged
 - Commit API keys or any file in .env
+- Treat a matching (or moved) aggregate score as proof an edit had (or didn't have) an effect without checking per-case results
