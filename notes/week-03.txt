@@ -50,3 +50,73 @@ validator can manufacture a failure that isn't there.
 ----------------------------------------------------------------------------------------------------------------------
 Week 3 - Anatomy of a failing prompt Experiment Notes and Results
 ----------------------------------------------------------------------------------------------------------------------
+
+Task
+
+Given a support ticket's raw text, produce a routing decision for a retail
+company's ticket system: classify into billing, technical, account, or
+shipping, plus a brief written rationale (not hidden reasoning) explaining
+the call. Test corpus is 10 hand-written tickets covering ordinary requests
+plus several deliberately ambiguous ones -- a delivery complaint that
+happens to mention a payment, an account-change request blocked by a
+malfunctioning save button, praise with no actual request, and a password
+reset with no obvious category cue.
+
+What failed
+
+The first fix I wrote (v1 -> v2, attempt #1) added a rule telling the model
+to ignore a payment mention when it's just context for a shipping problem.
+Live testing against Claude (claude-haiku-4-5-20251001) showed both
+versions scoring 90% exact-match, with a case flipping in each direction --
+looked like a textbook tradeoff. Reading the actual per-case output instead
+of trusting the aggregate number told a different story: the ticket the
+rule was written for was already correctly classified under v1 with no
+rule at all. The case that improved and the case that regressed were both
+unrelated to the rule's logic. Classified as: a fix that never got
+exercised by a real failure, so any change in the surrounding numbers was
+noise, not a demonstrated effect.
+
+Fix
+
+- Reviewed the full per-case breakdown (not just aggregate accuracy) to
+  find a failure the baseline prompt actually had, rather than one I
+  assumed it would have
+- Found it: v1 misreads a ticket where a broken UI control is incidental
+  to an account-change request ("I want to change my email but the save
+  button does nothing") as technical instead of account
+- Rewrote v2's rule to target that pattern specifically -- a malfunctioning
+  control described alongside an account request is incidental, not the
+  primary intent -- plus one supporting few-shot example
+- Kept everything else (system message, output schema, the original three
+  examples) identical, so the edit is a real, isolated diff between two
+  files, not a rewrite
+
+Results
+
+v1 scored 90% (9/10), missing only the targeted case. v2 scored 100%
+(10/10) -- the rule fixed exactly the ticket it was written for, with no
+other label-level cost anywhere in the suite.
+
+One thing didn't fully clean up: an unrelated, already-correctly-labeled
+ticket ("close my account and delete my data") kept its correct label in
+both versions, but its rationale's semantic-similarity score to the
+expected explanation dropped under v2 (0.699 -> 0.522). Exact-match alone
+would have missed this entirely. Notably, this same ticket regressed by
+almost the identical amount under the *first*, discarded v2 edit too
+(0.691 -> 0.526) -- two unrelated rules, nearly the same drift on the same
+case. That's evidence the cause isn't either rule's wording, but something
+closer to "a fourth few-shot example changes this ticket's phrasing,
+regardless of what it says."
+
+## Note on evaluation methodology
+
+The first fix looked validated by the aggregate number alone -- 90% both
+versions, with one case up and one down, which reads exactly like a
+designed tradeoff should. It wasn't one. The aggregate score stayed
+identical while the *specific* cases moving were coincidental to the edit,
+which only became visible by reading every row of the per-case table
+instead of trusting the summary line. Left in as part of the write-up for
+the same reason the Wolverine post's validator bug was: a clean-looking
+number is not the same as a confirmed effect, and the fix for that isn't a
+smarter aggregate metric, it's reading the actual output.
+
