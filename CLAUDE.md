@@ -26,9 +26,15 @@ fine-tuning, and evaluation.
 - Notebooks needing extra packages (anthropic, sentence-transformers) install them in a %pip cell, not just a note
 - Semantic similarity: sentence-transformers (all-MiniLM-L6-v2), paired with exact-match, never alone
 - Prompt versions are separate files, not inline strings
+- Tool JSON schemas use enums for closed value sets and required fields, same discipline as prompt files
+- Guarded code-runners get three checks: an AST allowlist, a pre-execution size/magnitude check, and a time limit as a secondary layer -- a thread-based timeout alone can't preempt a single expensive built-in call (e.g. a large exponentiation), since CPython doesn't release the GIL mid-computation
+- A live tool-use loop's mechanics (message shape, tool_result routing, retry handling, max-turns cap) get verified against a scripted fake client before running against the real API
+- Tool descriptions state any semantic constraint the JSON schema can't express (units, currency, value ranges), since the schema only checks shape, not meaning
 
 ## Do Not
 - Delete files or directories without confirming first
 - Push to main without checking what is staged
 - Commit API keys or any file in .env
 - Treat a matching (or moved) aggregate score as proof an edit had (or didn't have) an effect without checking per-case results
+- Treat a schema-valid, exception-free tool call as a correct one -- check what it actually computed, not just whether it validated
+- Conclude a fix works from a single live re-run -- confirm with more than one, especially when temperature isn't pinned to 0
