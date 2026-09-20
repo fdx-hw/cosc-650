@@ -1,0 +1,27 @@
+Tool Schemas
+Designed four tools for a trip-budget planner: convert_currency, lookup_destination_cost_index, get_weather_forecast, and calculate_trip_budget, each with a JSON schema using enums for closed value sets (currency codes, destinations, months) and required fields.
+Noted a domain-design tradeoff up front: calculate_trip_budget takes a single arithmetic expression string rather than typed numeric fields, so it can flexibly combine outputs from other tools -- but that same flexibility is exactly what let a later bug (currency mixing) slip past schema validation.
+ 
+Guarded Code-Runner
+Built an AST-based allowlist (arithmetic only: + - * / ** and parentheses, no names, calls, imports, comprehensions, or lambdas) plus a time limit and a pre-execution check, matching the assignment's three required controls.
+Sanity-tested the time limit against "9**9**9**9**9" and found it didn't actually work: a ThreadPoolExecutor timeout only stops the main thread from waiting, not the worker thread itself, and CPython's big-integer ** doesn't release the GIL mid-computation, so one huge pow() call freezes the whole interpreter and can't be preempted by another thread's timeout.
+Fixed by adding a check that estimates an exponentiation's result size (base bit-length x exponent) before ever calling **, rejecting anything over a 256-bit cap. This stops the expensive computation from starting at all, instead of trying to kill it after the fact. Kept the original timeout as a secondary layer for anything else unexpectedly slow.
+ 
+Live Tool-Use Loop
+Wired a real Claude tool-use loop: convert the tool schemas to Anthropic's input_schema format, loop while stop_reason is tool_use, dispatch each call through the same validate()/dispatch() pair used everywhere else, return tool_result blocks keyed by tool_use_id.
+Verified the loop's mechanics (message accumulation, tool_result shape, stopping condition, a bad-call-then-retry sequence, a max-turns safety cap) against a scripted fake client before ever running it against the real API, to separate plumbing bugs from model behavior.
+ 
+Evaluating Four Queries
+Ran four live queries against claude-haiku-4-5-20251001, one per tool plus one requiring two tools in sequence.
+Currency conversion, cost-index lookup, and weather-forecast queries all resolved correctly on the first live run -- a single tool call each, correct arguments, correct output.
+The two-tool sequence (convert 800 USD to JPY, then use that plus Tokyo's daily cost index to estimate a 5-day budget) is where the real finding showed up: the model called convert_currency and lookup_destination_cost_index correctly, then called calculate_trip_budget with an expression that summed a USD figure and a JPY figure with no conversion between them (142 * 5 + 119600 = 120310, a number meaningless in either currency).
+ 
+Failure Cases
+(a) Guardrail timeout that didn't guard: the code-runner's time limit relied on a thread-based timeout, which can't preempt a single expensive built-in call once it starts running. Confirmed by testing an actual resource-exhaustion input rather than assuming the timeout would catch it. Mitigation: check the estimated size of an exponentiation's result before evaluating it, so the guard runs before the expensive operation instead of trying to interrupt it mid-flight.
+(b) Schema-valid tool call with a semantic currency error: calculate_trip_budget's parameters schema only requires expression to be a string -- there's no field that could ever encode "these two numbers are in different currencies," so no schema check could reject this call. Confirmed with the course instructor that this counts as a real function-calling failure distinct from the three named types (invalid schema argument, hallucinated nested structure, tool runtime error), since it's schema-valid and exception-free -- the failure is semantic, not mechanical. Mitigation: rewrote the tool's description to explicitly require matching currencies before combining values, and added one reinforcing line to the system prompt. Not a schema change and not a retry.
+ 
+Confirming the Fix
+Re-ran the identical two-tool query live after the fix, twice, and got two different but mutually consistent results: one run converted Tokyo's daily rate into JPY before combining (225,745 JPY), the other converted the JPY amount back into USD and combined there instead (1,510 USD). Same amount either way (225,745 / 149.5 = 1,510 exactly) -- two different tool-call paths landing on the same answer is stronger evidence the fix generalizes than a single clean run would be.
+Noted a smaller side finding in the first fixed run: the model computed 142 x 5 = 710 in prose instead of routing that step through calculate_trip_budget, against an explicit system-prompt instruction not to do arithmetic outside the tool. Didn't affect correctness here, but it's a real instruction-following gap.
+Two clean re-runs is confidence, not certainty -- the API call isn't pinned to temperature=0, and the tool description and system prompt changed at the same time, so a follow-up ablation (reverting one change at a time) would be needed to fully separate which change did the work. Added an editable cell to the notebook specifically to make that test easy to run.
+ 
