@@ -30,6 +30,8 @@ fine-tuning, and evaluation.
 - Guarded code-runners get three checks: an AST allowlist, a pre-execution size/magnitude check, and a time limit as a secondary layer -- a thread-based timeout alone can't preempt a single expensive built-in call (e.g. a large exponentiation), since CPython doesn't release the GIL mid-computation
 - A live tool-use loop's mechanics (message shape, tool_result routing, retry handling, max-turns cap) get verified against a scripted fake client before running against the real API
 - Tool descriptions state any semantic constraint the JSON schema can't express (units, currency, value ranges), since the schema only checks shape, not meaning
+- Multi-stage pipelines (transform, re-rank) run baseline / transform-only / transform+rerank separately, so a regression can be pinned to the right stage
+= Re-ranking over-retrieves past the final k and scores against the real query, not a transformed stand-in — it can only reorder a top-k, never recover a chunk missed earlier
 
 ## Do Not
 - Delete files or directories without confirming first
@@ -38,3 +40,6 @@ fine-tuning, and evaluation.
 - Treat a matching (or moved) aggregate score as proof an edit had (or didn't have) an effect without checking per-case results
 - Treat a schema-valid, exception-free tool call as a correct one -- check what it actually computed, not just whether it validated
 - Conclude a fix works from a single live re-run -- confirm with more than one, especially when temperature isn't pinned to 0
+- Assume two failures with the same metric pattern share the same cause, check the actual intermediate state first
+- Claim a technique "can't do" something without checking each test case, it may hold for one and not another
+- Trust a "don't hedge" prompt without checking output, it can trade honest uncertainty for a confident wrong answer
