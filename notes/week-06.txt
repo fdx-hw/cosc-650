@@ -1,5 +1,5 @@
 Week 6 RAGAS evaluation experiment
-----------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Pipeline & Methodology
 Evaluated the Week 5 Orbit RAG pipeline, fixed to a single configuration rather than comparing multiple: small (120/20) chunking, top-3 retrieval, Claude (claude-haiku-4-5-20251001) generation. Picked this config deliberately over the better-scoring large/by-paragraph options from Week 5, since it's the one with an already-known real failure (the /healthz chunk split from Part 4) -- evaluating the best-performing config would have made for a low-signal test with nothing real to find.
 Implemented the four RAGAS dimensions directly with Claude as an LLM judge rather than installing the ragas package, which defaults to OpenAI and would need an extra LangChain/Anthropic wrapper for no real benefit, since the published definitions are what actually matter. Each metric follows RAGAS's own methodology: faithfulness and context recall decompose text into atomic claims and verify each against the context; answer relevancy generates synthetic questions from the answer and measures embedding similarity to the real question; context precision gets per-chunk relevance verdicts and computes rank-weighted average precision.
@@ -20,4 +20,23 @@ Faithfulness scored a perfect 1.00 on every query, including the /healthz query 
 Proposed Fix & Tradeoffs
 Tighten the generation prompt to require a direct, single-paragraph answer -- no restated question headers, no bullets for simple facts, no "based on the context provided" framing. Targets answer relevancy specifically, since cutting non-answer scaffolding should pull the reverse-engineered questions back toward the original phrasing.
 Cost is close to free -- a prompt edit, not an added model call or retrieval change. The real risk is qualitative: the lowest-scoring answer hedged because the docs genuinely lacked detail, and that hedge was accurate. Pushing toward shorter, more confident-sounding answers risks trading honest uncertainty for a better-looking score rather than better actual quality -- a fix that chases the metric instead of the thing the metric is supposed to measure.
- 
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Extended Week 5's retriever with HyDE plus a hybrid dense+lexical re-ranker. Same corpus, same 14 queries, same small (120/20) chunking as Week 5, so results are comparable.
+
+Real results: baseline precision@3=0.381/recall@3=0.964, HyDE alone 0.286/0.750, HyDE+rerank 0.310/0.821. HyDE never improved a single query — 0 improved, 3 regressed, 11 unchanged. Re-ranking recovered some but not all of the damage.
+
+Found two different failure causes behind two similar-looking regressions. For "/healthz," HyDE invented a fake URL and the right chunk never even made it into the retrieved candidate pool — a transformation-stage loss. For "quorum," the right chunk was in the pool but still lost the re-rank — a re-ranking-stage loss. Confirmed this by directly checking the candidate pools rather than assuming from the score drops.
+
+Optional Part 4: added schema-constrained extraction (Claude tool-use forcing a port/limit/setting schema) to answer a count query and a cross-doc comparison that plain retrieval struggles with. Both answers came out correct. Checked empirically whether vector search actually failed each query — it did for the count query (missed a needed doc), but not for the comparison query (got lucky and retrieved both needed docs anyway).
+
+Findings:
+
+HyDE only had room to hurt here, not help. Baseline retrieval was already near ceiling (recall@3 0.964), so there was nothing for a paraphrase step to gain and plenty for it to lose if the generated guess was wrong.
+
+A confident, specific, wrong hypothetical is worse than a vague one. Telling the model not to hedge traded a safe "I'm not sure" for fabricated specifics (a made-up URL, the wrong consistency term) that embed nowhere near the real answer.
+
+Two regressions that looked identical by the numbers had different root causes, and that only showed up by checking the actual candidate pool, not the score deltas. This matters practically: the fix for one (merge in the raw query's own retrieval so a bad guess can't exclude the right chunk) wouldn't have fixed the other (a re-ranker weighting issue).
+
+Don't force a clean story onto mixed evidence. Part 4's "vector search can't do this" claim only held for one of the two test queries when actually checked — reporting that honestly was more useful than claiming both proved the point.
