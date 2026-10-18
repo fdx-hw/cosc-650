@@ -1,0 +1,242 @@
+{
+  "fingerprint": "7d41d82dd40e5dc1",
+  "chunks": 738,
+  "gen_model": "claude-haiku-4-5-20251001",
+  "judge_model": "claude-sonnet-4-5-20250929",
+  "temperature_pinned": true,
+  "k": 5,
+  "n_cases": 18,
+  "plain_code_ok": 15,
+  "routing": {
+    "starter keyword router": 30,
+    "domain keywords (written after seeing eval phrasings)": 60,
+    "kNN vote of 4 labeled questions (no LLM)": 51,
+    "zero-shot Haiku (no examples)": 60,
+    "dynamic 4-shot Haiku (the router used below)": 60
+  },
+  "routing_n": 60,
+  "ablation": {
+    "full system": 15,
+    "oracle route": 15,
+    "oracle retrieval": 17,
+    "oracle route + retrieval": 17
+  },
+  "cases": [
+    {
+      "id": 0,
+      "type": "requirements",
+      "q": "What Strength and Dexterity does the Pest's Glaive demand?",
+      "det_ok": true,
+      "route": "lookup",
+      "judge": {
+        "correctness": 5,
+        "grounding": 5,
+        "calibration": 5
+      }
+    },
+    {
+      "id": 1,
+      "type": "requirements",
+      "q": "What Strength and Dexterity does the Cleanrot Spear demand?",
+      "det_ok": true,
+      "route": "lookup",
+      "judge": {
+        "correctness": 5,
+        "grounding": 5,
+        "calibration": 5
+      }
+    },
+    {
+      "id": 2,
+      "type": "requirements",
+      "q": "What Strength and Dexterity does the Large Club demand?",
+      "det_ok": true,
+      "route": "lookup",
+      "judge": {
+        "correctness": 5,
+        "grounding": 5,
+        "calibration": 5
+      }
+    },
+    {
+      "id": 3,
+      "type": "weight_lookup",
+      "q": "How heavy is the Winged Greathorn?",
+      "det_ok": true,
+      "route": "lookup",
+      "judge": {
+        "correctness": 5,
+        "grounding": 5,
+        "calibration": 5
+      }
+    },
+    {
+      "id": 4,
+      "type": "boss_location",
+      "q": "Where is Demi-human Queen Margot located?",
+      "det_ok": true,
+      "route": "lookup",
+      "judge": {
+        "correctness": 5,
+        "grounding": 5,
+        "calibration": 5
+      }
+    },
+    {
+      "id": 5,
+      "type": "boss_location",
+      "q": "Where is Ulcerated Tree Spirit located?",
+      "det_ok": true,
+      "route": "lookup",
+      "judge": {
+        "correctness": 5,
+        "grounding": 5,
+        "calibration": 5
+      }
+    },
+    {
+      "id": 6,
+      "type": "boss_location",
+      "q": "Where is Draconic Tree Sentinel located?",
+      "det_ok": true,
+      "route": "lookup",
+      "judge": {
+        "correctness": 5,
+        "grounding": 5,
+        "calibration": 5
+      }
+    },
+    {
+      "id": 7,
+      "type": "boss_drops",
+      "q": "What loot do I get from beating Godskin Apostle And Godskin Noble?",
+      "det_ok": false,
+      "route": "lookup",
+      "judge": {
+        "correctness": 1,
+        "grounding": 3,
+        "calibration": 1
+      }
+    },
+    {
+      "id": 8,
+      "type": "boss_drops",
+      "q": "What loot do I get from beating Regal Ancestor Spirit?",
+      "det_ok": true,
+      "route": "lookup",
+      "judge": {
+        "correctness": 5,
+        "grounding": 5,
+        "calibration": 5
+      }
+    },
+    {
+      "id": 9,
+      "type": "can_wield",
+      "q": "With 5 Str and 12 Dex, am I able to equip the Dagger?",
+      "det_ok": true,
+      "route": "tool",
+      "judge": {
+        "correctness": 5,
+        "grounding": 5,
+        "calibration": 5
+      }
+    },
+    {
+      "id": 10,
+      "type": "can_wield",
+      "q": "Would the Spear be usable at 12 Strength and 12 Dexterity?",
+      "det_ok": true,
+      "route": "tool",
+      "judge": {
+        "correctness": 5,
+        "grounding": 5,
+        "calibration": 5
+      }
+    },
+    {
+      "id": 11,
+      "type": "can_wield",
+      "q": "Could someone with 21 Str and 13 Dex swing the Arbalest?",
+      "det_ok": false,
+      "route": "tool",
+      "judge": {
+        "correctness": 1,
+        "grounding": 5,
+        "calibration": 1
+      }
+    },
+    {
+      "id": 12,
+      "type": "weight_math",
+      "q": "Add up the weights of the Pest's Glaive and the Raptor Talons.",
+      "det_ok": true,
+      "route": "tool",
+      "judge": {
+        "correctness": 5,
+        "grounding": 5,
+        "calibration": 5
+      }
+    },
+    {
+      "id": 13,
+      "type": "weight_math",
+      "q": "What is the total load of the Crystal Sword plus the Prelate's Inferno Crozier?",
+      "det_ok": true,
+      "route": "tool",
+      "judge": {
+        "correctness": 5,
+        "grounding": 5,
+        "calibration": 5
+      }
+    },
+    {
+      "id": 14,
+      "type": "weight_math",
+      "q": "By how much does the Cranial Vessel Candlestand outweigh the Dagger?",
+      "det_ok": false,
+      "route": "tool",
+      "judge": {
+        "correctness": 1,
+        "grounding": 5,
+        "calibration": 1
+      }
+    },
+    {
+      "id": 15,
+      "type": "unanswerable",
+      "q": "What are the stat requirements for the Frostbitten Kitchen Knife?",
+      "det_ok": true,
+      "route": "lookup",
+      "judge": {
+        "correctness": 5,
+        "grounding": 5,
+        "calibration": 5
+      }
+    },
+    {
+      "id": 16,
+      "type": "unanswerable",
+      "q": "With 20 Str and 12 Dex, am I able to equip the Hollow Oakwood Spear?",
+      "det_ok": true,
+      "route": "tool",
+      "judge": {
+        "correctness": 5,
+        "grounding": 5,
+        "calibration": 5
+      }
+    },
+    {
+      "id": 17,
+      "type": "unanswerable",
+      "q": "What is the drop rate of Flamedrake Talisman from Beast Of Farum Azula?",
+      "det_ok": true,
+      "route": "lookup",
+      "judge": {
+        "correctness": 5,
+        "grounding": 5,
+        "calibration": 5
+      }
+    }
+  ]
+}
