@@ -2,7 +2,7 @@
 
 COSC 650, Week 8 capstone. Ask about Elden Ring weapons, bosses, talismans and spells. The assistant answers from game data instead of memory, uses tools for checks and arithmetic ("can I wield this with 20 Str and 12 Dex?", "how much heavier is X than Y?"), and says "I don't have that in the data" when the data doesn't cover the question.
 
-**In 60 seconds:** four techniques from earlier weeks, wired into one pipeline and evaluated on 18 held-out cases with a second Claude model as judge. It got 15 of 18 right. Two of the three misses show a gap between the components: when retrieval misses a record, the model declines instead of using a tool that could have looked it up. I then tested two fixes on 12 new questions where retrieval missed: matching exact item names before retrieval took the system from 0 of 12 right to 12 of 12, and a prompt rule telling the model to try the tool first took it to 8 of 12. The third miss was partly the answer check being strict about wording. Details below and in the [research note](week8_notes.txt).
+**In 60 seconds:** four techniques from earlier weeks, wired into one pipeline and evaluated on 18 held-out cases with a second Claude model as judge. It got 15 of 18 right. Two of the three misses show a gap between the components: when retrieval misses a record, the model declines instead of using a tool that could have looked it up. I then tested two fixes on 12 new questions where retrieval missed: matching exact item names before retrieval took the system from 0 of 12 right to 12 of 12, and a prompt rule telling the model to try the tool first took it to 8 of 12. The third miss was partly the answer check being strict about wording. Details below and in the [research note](notes/week-08.txt).
 
 ## Architecture
 
@@ -95,8 +95,7 @@ Linking fixed 12 and broke none (sign test p < 0.001). The rule changed tool use
 
 - `week8_capstone.ipynb`: the notebook, with outputs
 - `data/week8_results.json`: run summary
-- `week8_notes.txt`: research note
 
-`data/raw/` is not committed. The data is scraped from fan sources, is not mine to redistribute, and the notebook re-fetches it.
+The data is scraped from fan sources, is not mine to redistribute, and the notebook re-fetches it.
 
 *Fan project, not affiliated with or endorsed by FromSoftware or Bandai Namco. Elden Ring is their trademark.*
